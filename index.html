@@ -47,10 +47,14 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        // === ZDE VLOŽ SVÉ ÚDAJE ZE SUPABASE ===
-        const SUPABASE_URL = 'https://svvpjggcilvxhexoalqj.supabase.co/rest/v1/'; 
-        const SUPABASE_KEY = 'sb_publishable_jtx1W3Cwsg8nPUjc7W2gJQ_TBaA6HEH';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // === SPRÁVNÁ SESTAVA ÚDAJŮ ===
+const SUPABASE_URL = 'https://svvpjggcilvxhexoalqj.supabase.co'; 
+const SUPABASE_KEY = 'sb_publishable_jtx1W3Cwsg8nPUjc7W2gJQ_TBaA6HEH';
+
+// Vytvoření klienta (použijeme window.supabase aby se předešlo konfliktu jmen)
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
 
         // Inicializace mapy
         const map = L.map('map').setView([20, 0], 2);
