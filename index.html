@@ -7,90 +7,220 @@
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; height: 100vh; }
-        #auth-panel { background: #2c3e50; color: white; padding: 10px 20px; display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
-        #auth-panel input { padding: 6px; border-radius: 4px; border: 1px solid #ccc; }
-        #auth-panel button { padding: 6px 14px; background-color: #3498db; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-        #controls { padding: 15px 20px; background: #ffffff; box-shadow: 0 2px 10px rgba(0,0,0,0.1); z-index: 1000; display: none; gap: 10px; align-items: center; }
-        #cityInput { padding: 10px; font-size: 15px; border: 1px solid #ccc; border-radius: 6px; width: 260px; }
-        .btn-add { padding: 10px 18px; background-color: #2ecc71; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        #map { flex-grow: 1; width: 100%; }
-        #list { padding: 15px 20px; background: #f8f9fa; border-top: 1px solid #e9ecef; max-height: 180px; overflow-y: auto; }
-        .place-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #e0e0e0; font-size: 14px; }
-        .del-btn { background: #e74c3c; color: white; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; display: none; }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        #auth-panel {
+            background: #2c3e50;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #auth-panel input {
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            outline: none;
+        }
+
+        #auth-panel button {
+            padding: 6px 14px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #auth-panel button:hover {
+            background-color: #2980b9;
+        }
+
+        #controls {
+            padding: 15px 20px;
+            background: #ffffff;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #cityInput {
+            padding: 10px 14px;
+            font-size: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            width: 260px;
+            outline: none;
+        }
+
+        .btn-add {
+            padding: 10px 18px;
+            font-size: 15px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-add:hover {
+            background-color: #27ae60;
+        }
+
+        #status {
+            color: #666;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+
+        #map {
+            flex-grow: 1;
+            width: 100%;
+            min-height: 300px;
+        }
+
+        #list {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #e9ecef;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        #list h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .place-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+
+        .del-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            display: none;
+        }
+
+        .del-btn:hover {
+            background: #c0392b;
+        }
     </style>
 </head>
 <body>
 
+    <!-- Přihlášení -->
     <div id="auth-panel">
-        <span>Správa:</span>
-        <input type="text" id="username" placeholder="Jméno">
+        <span id="user-info">Přihlášení správce:</span>
+        <input type="text" id="username" placeholder="Uživatelské jméno">
         <input type="password" id="password" placeholder="Heslo">
-        <button onclick="checkAuth()">Přihlásit</button>
+        <button id="login-btn" onclick="checkAuth()">Přihlásit</button>
     </div>
 
+    <!-- Ovládání pro přihlášené -->
     <div id="controls">
-        <input type="text" id="cityInput" placeholder="Zadejte název města...">
+        <input type="text" id="cityInput" placeholder="Zadejte název města (např. Paříž)">
         <button class="btn-add" onclick="addCity()">Přidat místo</button>
         <span id="status"></span>
     </div>
 
+    <!-- Mapa -->
     <div id="map"></div>
 
+    <!-- Seznam míst -->
     <div id="list">
         <h3>Seznam navštívených míst:</h3>
-        <div id="placesContainer">Načítám...</div>
+        <div id="placesContainer">Načítám z databáze...</div>
     </div>
 
-    <!-- Leaflet JS & Supabase JS -->
+    <!-- Skripty -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-
-        // === SPRÁVNÁ SESTAVA ÚDAJŮ ===
-const SUPABASE_URL = 'https://svvpjggcilvxhexoalqj.supabase.co'; 
-const SUPABASE_KEY = 'sb_publishable_jtx1W3Cwsg8nPUjc7W2gJQ_TBaA6HEH';
-
-// Vytvoření klienta (použijeme window.supabase aby se předešlo konfliktu jmen)
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    
+        // Nastavení Supabase s vaší přesnou URL a Klíčem
+        const SUPABASE_URL = 'https://svvpjggcilvxhexoalqj.supabase.co'; 
+        const SUPABASE_KEY = 'sb_publishable_jtx1W3Cwsg8nPUjc7W2gJQ_TBaA6HEH';
+        
+        let dbClient = null;
+        if (window.supabase && window.supabase.createClient) {
+            dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
 
         // Inicializace mapy
         const map = L.map('map').setView([20, 0], 2);
+
         L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-            attribution: '© CARTO'
+            attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+            subdomains: 'abcd',
+            maxZoom: 19
         }).addTo(map);
 
         let visitedPlaces = [];
         let markers = {};
         let isLoggedIn = false;
 
-        // Načtení dat z databáze při spuštění
-        async function loadPlacesFromDB() {
-            const { data, error } = await supabase.from('places').select('*');
-            if (error) {
-                console.error("Chyba při načítání dat:", error);
-            } else {
-                visitedPlaces = data;
-                renderList();
-            }
-        }
-
+        // Kontrola přihlášení
         function checkAuth() {
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
 
             if (user === "admin" && pass === "simonka2003") {
                 isLoggedIn = true;
+
                 document.getElementById('controls').style.display = 'flex';
                 document.getElementById('auth-panel').innerHTML = '<span>Přihlášen jako <b>admin</b></span> <button onclick="location.reload()">Odhlásit</button>';
-                document.querySelectorAll('.del-btn').forEach(btn => btn.style.display = 'inline-block');
+
+                renderList();
             } else {
-                alert("Špatné jméno nebo heslo!");
+                alert("Nespravné uživatelské jméno nebo heslo!");
             }
         }
 
+        // Načtení z databáze
+        async function loadPlacesFromDB() {
+            if (!dbClient) return;
+
+            try {
+                const { data, error } = await dbClient.from('places').select('*');
+                if (error) {
+                    console.error("Chyba načítání:", error);
+                    document.getElementById('placesContainer').textContent = "Chyba při načítání z databáze.";
+                } else {
+                    visitedPlaces = data || [];
+                    renderList();
+                }
+            } catch (e) {
+                console.error("Kritická chyba:", e);
+            }
+        }
+
+        // Vykreslení seznamu a bodů
         function renderList() {
             const container = document.getElementById('placesContainer');
             container.innerHTML = '';
@@ -99,20 +229,24 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             markers = {};
 
             if (visitedPlaces.length === 0) {
-                container.innerHTML = '<span style="color: #888;">Žádná místa nebyla zatiaľ přidána.</span>';
+                container.innerHTML = '<span style="color: #888;">Zatím nebyly přidány žádné body.</span>';
                 return;
             }
 
             visitedPlaces.forEach((place) => {
                 const marker = L.circleMarker([place.lat, place.lng], {
-                    color: '#e74c3c', fillColor: '#e74c3c', fillOpacity: 0.85, radius: 7
+                    color: '#e74c3c',
+                    fillColor: '#e74c3c',
+                    fillOpacity: 0.85,
+                    radius: 7
                 }).addTo(map).bindPopup(`<b>${place.name}</b>`);
                 
                 markers[place.id] = marker;
 
                 const div = document.createElement('div');
                 div.className = 'place-item';
-                const btnStyle = isLoggedIn ? 'style="display: inline-block;"' : '';
+                
+                const btnStyle = isLoggedIn ? 'style="display: inline-block;"' : 'style="display: none;"';
                 div.innerHTML = `
                     <span><b>${place.name}</b></span>
                     <button class="del-btn" ${btnStyle} onclick="deletePlace(${place.id})">Smazat</button>
@@ -121,12 +255,14 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             });
         }
 
+        // Přidání města
         async function addCity() {
             const input = document.getElementById('cityInput');
             const status = document.getElementById('status');
             const cityName = input.value.trim();
 
             if (!cityName) return;
+
             status.textContent = "Vyhledávám...";
 
             try {
@@ -138,18 +274,21 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
                     const lng = parseFloat(data[0].lon);
                     const displayName = data[0].display_name.split(',')[0];
 
-                    // Uložení do Supabase
-                    const { data: insertedData, error } = await supabase
-                        .from('places')
-                        .insert([{ name: displayName, lat, lng }])
-                        .select();
+                    if (dbClient) {
+                        const { data: insertedData, error } = await dbClient
+                            .from('places')
+                            .insert([{ name: displayName, lat, lng }])
+                            .select();
 
-                    if (!error) {
-                        visitedPlaces.push(insertedData[0]);
-                        renderList();
-                        map.flyTo([lat, lng], 5);
-                        input.value = '';
-                        status.textContent = `Přidáno: ${displayName}`;
+                        if (!error && insertedData) {
+                            visitedPlaces.push(insertedData[0]);
+                            renderList();
+                            map.flyTo([lat, lng], 5);
+                            input.value = '';
+                            status.textContent = `Přidáno: ${displayName}`;
+                        } else {
+                            status.textContent = "Chyba při ukládání do databáze.";
+                        }
                     }
                 } else {
                     status.textContent = "Město nebylo nalezeno.";
@@ -159,19 +298,30 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             }
         }
 
+        // Smazání města
         async function deletePlace(id) {
-            if (!isLoggedIn) return;
+            if (!isLoggedIn || !dbClient) return;
 
-            // Smazání ze Supabase databáze
-            const { error } = await supabase.from('places').delete().eq('id', id);
+            const { error } = await dbClient.from('places').delete().eq('id', id);
 
             if (!error) {
                 visitedPlaces = visitedPlaces.filter(p => p.id !== id);
                 renderList();
+            } else {
+                alert("Chyba při mazání z databáze.");
             }
         }
 
-        // Spuštění načítání
+        // Odchycení klávesy Enter
+        document.getElementById('password').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') checkAuth();
+        });
+
+        document.getElementById('cityInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') addCity();
+        });
+
+        // Načtení dat při startu
         loadPlacesFromDB();
     </script>
 </body>
